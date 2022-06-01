@@ -36,6 +36,9 @@
 #include <ns3/log.h>
 #include <vector>
 #include <algorithm>
+#include <string>
+#include "envVarTaskID.h"
+using namespace std;
 
 namespace ns3 {
 
@@ -65,10 +68,17 @@ MmWaveBearerStatsCalculator::~MmWaveBearerStatsCalculator ()
 {
   NS_LOG_FUNCTION (this);
 }
-
+/*
+string getEnvVar(string const & key) {
+    char * val = getenv(key.c_str());
+    return val == NULL ? string("") : string(val);
+}
+*/
 TypeId
-MmWaveBearerStatsCalculator::GetTypeId (void)
-{
+MmWaveBearerStatsCalculator::GetTypeId (void) {
+
+    auto fileNameSuffix = getEnvVar("NS3_JOB_ID");
+
   static TypeId tid =
     TypeId ("ns3::MmWaveBearerStatsCalculator")
     .SetParent<LteStatsCalculator> ().AddConstructor<MmWaveBearerStatsCalculator> ()
@@ -85,22 +95,22 @@ MmWaveBearerStatsCalculator::GetTypeId (void)
                    MakeTimeChecker ())
     .AddAttribute ("DlRlcOutputFilename",
                    "Name of the file where the downlink results will be saved.",
-                   StringValue ("DlRlcStats.txt"),
+                   StringValue ("DlRlcStats" + fileNameSuffix + ".txt"),
                    MakeStringAccessor (&LteStatsCalculator::SetDlOutputFilename),
                    MakeStringChecker ())
-    .AddAttribute ("UlRlcOutputFilename",
+    .AddAttribute ("UUlRlcStats.txtUlRlcStats.txtDlPdcpStats.txtlRlcOutputFilename",
                    "Name of the file where the uplink results will be saved.",
-                   StringValue ("UlRlcStats.txt"),
+                   StringValue ("UlRlcStats" + fileNameSuffix + ".txt"),
                    MakeStringAccessor (&LteStatsCalculator::SetUlOutputFilename),
                    MakeStringChecker ())
     .AddAttribute ("DlPdcpOutputFilename",
                    "Name of the file where the downlink results will be saved.",
-                   StringValue ("DlPdcpStats.txt"),
+                   StringValue ("DlPdcpStats" + fileNameSuffix + ".txt"),
                    MakeStringAccessor (&MmWaveBearerStatsCalculator::SetDlPdcpOutputFilename),
                    MakeStringChecker ())
     .AddAttribute ("UlPdcpOutputFilename",
                    "Name of the file where the uplink results will be saved.",
-                   StringValue ("UlPdcpStats.txt"),
+                   StringValue ("UlPdcpStats" + fileNameSuffix + ".txt"),
                    MakeStringAccessor (&MmWaveBearerStatsCalculator::SetUlPdcpOutputFilename),
                    MakeStringChecker ())
   ;

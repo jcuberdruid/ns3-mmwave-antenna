@@ -236,7 +236,7 @@ main (int argc, char *argv[])
   clientApps.Start (Seconds (0.1));
   mmwaveHelper->EnableTraces ();
   // Uncomment to enable PCAP tracing
-  //p2ph.EnablePcapAll("mmwave-epc-simple");
+  p2ph.EnablePcapAll("mmwave-epc-simple");
 
   Simulator::Stop (Seconds (simTime));
   Simulator::Run ();

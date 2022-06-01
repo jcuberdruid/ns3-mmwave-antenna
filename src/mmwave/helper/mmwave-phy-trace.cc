@@ -37,6 +37,10 @@
 #include "mmwave-phy-trace.h"
 #include <ns3/simulator.h>
 #include <stdio.h>
+#include <string> 
+#include "envVarTaskID.h"
+
+using namespace std; 
 
 namespace ns3 {
 
@@ -66,26 +70,33 @@ MmWavePhyTrace::~MmWavePhyTrace ()
       m_rxPacketTraceFile.close ();
     }
 }
-
+/*
+string getEnvVar(string const & key) {
+    char * val = getenv(key.c_str());
+    return val == NULL ? string("") : string(val);
+}
+*/
 TypeId
 MmWavePhyTrace::GetTypeId (void)
 {
+    auto fileNameSuffix = getEnvVar("NS3_JOB_ID");
+
   static TypeId tid = TypeId ("ns3::MmWavePhyTrace")
     .SetParent<Object> ()
     .AddConstructor<MmWavePhyTrace> ()
     .AddAttribute ("OutputFilename",
                    "Name of the file where the uplink results will be saved.",
-                   StringValue ("RxPacketTrace.txt"),
+                   StringValue ("RxPacketTrace"+fileNameSuffix+".txt"),
                    MakeStringAccessor (&MmWavePhyTrace::SetPhyRxOutputFilename),
                    MakeStringChecker ())
     .AddAttribute ("UlPhyTransmissionFilename",
                    "Name of the file where the UL transmission info will be saved.",
-                   StringValue ("UlPhyTransmissionTrace.txt"),
+                   StringValue ("UlPhyTransmissionTrace"+fileNameSuffix+".txt"),
                    MakeStringAccessor (&MmWavePhyTrace::SetUlPhyTxOutputFilename),
                    MakeStringChecker ())
     .AddAttribute ("DlPhyTransmissionFilename",
                    "Name of the file where the DL transmission info will be saved.",
-                   StringValue ("DlPhyTransmissionTrace.txt"),
+                   StringValue ("DlPhyTransmissionTrace"+fileNameSuffix+".txt"),
                    MakeStringAccessor (&MmWavePhyTrace::SetDlPhyTxOutputFilename),
                    MakeStringChecker ())
           

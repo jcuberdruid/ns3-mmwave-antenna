@@ -280,6 +280,7 @@ ThreeGppSpectrumPropagationLossModel::DoCalcRxPowerSpectralDensity (Ptr<const Sp
   uint32_t bId = b->GetObject<Node> ()->GetId (); // id of the node b
 
   NS_ASSERT (aId != bId);
+
   NS_ASSERT_MSG (a->GetDistanceFrom (b) > 0.0, "The position of a and b devices cannot be the same");
 
   Ptr<SpectrumValue> rxPsd = Copy<SpectrumValue> (txPsd);

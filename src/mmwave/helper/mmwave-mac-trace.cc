@@ -19,7 +19,11 @@
 */
 
 #include <ns3/log.h>
+#include <string>
 #include "mmwave-mac-trace.h"
+#include "envVarTaskID.h"
+
+using namespace std;
 
 namespace ns3 {
 
@@ -43,16 +47,22 @@ MmWaveMacTrace::~MmWaveMacTrace ()
       m_schedAllocTraceFile.close ();
     }
 }
-
+/*
+string getEnvVar(string const & key) {
+    char * val = getenv(key.c_str());
+    return val == NULL ? string("") : string(val);
+}
+*/
 TypeId
 MmWaveMacTrace::GetTypeId (void)
 {
+  auto fileNameSuffix = getEnvVar("NS3_JOB_ID");
   static TypeId tid = TypeId ("ns3::MmWaveMacTrace")
     .SetParent<Object> ()
     .AddConstructor<MmWaveMacTrace> ()
     .AddAttribute ("SchedInfoOutputFilename",
                    "Name of the file where the allocation info provided by the scheduler will be saved.",
-                   StringValue ("EnbSchedAllocTraces.txt"),
+                   StringValue ("EnbSchedAllocTraces" + fileNameSuffix + ".txt"),
                    MakeStringAccessor (&MmWaveMacTrace::SetOutputFilename),
                    MakeStringChecker ())
   ;

@@ -18,6 +18,7 @@
 #include "ns3/point-to-point-helper.h"
 #include "ns3/applications-module.h"
 #include "ns3/envVarTaskID.h"
+#include "ns3/mmwave-lte-rrc-protocol-real.h"
 #include <fstream>
 #include <iostream>
 #include <typeinfo>
@@ -45,6 +46,24 @@ void timeNow() {
 	progressFile << ns3::Simulator::Now()  << endl; 
 	progressFile.close();
 	Simulator::Schedule (MilliSeconds (20), &timeNow);		
+}
+
+void rntiLog(NodeContainer ueNodes) {
+	//netdevice node legend
+	ofstream legendFile; 
+	NodeContainer::Iterator it; 
+	
+	legendFile.open(LegendFileName.c_str(), std::ios_base::app);	
+	for (it = ueNodes.Begin(); it != ueNodes.End (); ++it){
+
+		Ptr<Node> node = *it; 
+		Ptr<MmWaveUeNetDevice> mmuedev = node->GetDevice(0)->GetObject <MmWaveUeNetDevice> ();
+		Vector pos = node->GetObject<MobilityModel> ()->GetPosition ();
+		Ptr<LteUeRrc> rrcRNTI = mmuedev->GetRrc();
+		Ptr<MmWaveEnbNetDevice> enbAttached = mmuedev->GetTargetEnb();
+		
+      		legendFile << node->GetId() << "," << mmuedev->GetImsi() << "," << enbAttached->GetCellId() << "," << rrcRNTI->GetRnti() <<"," << pos.x << "," << pos.y << endl;
+	}
 }
 
 int main (int argc, char *argv[]) {
@@ -498,29 +517,28 @@ int main (int argc, char *argv[]) {
 	}
 //	clientApps.Add (ulClient.Install (ueNodes.Get (0)));
 
-	serverApps.Start (Seconds (0.01));
-	clientApps.Start (Seconds (0.01));
+	serverApps.Start (Seconds (0.1));
+	clientApps.Start (Seconds (0.1));
 
-	//netdevice node legend
+	//node legend 
 	ofstream legendFile; 
-	legendFile.open(LegendFileName.c_str(), ios_base::out | ios_base::trunc);	
-	for (it = ueNodes.Begin(); it != ueNodes.End (); ++it){
-
-		Ptr<Node> node = *it; 
-		Ptr<MmWaveUeNetDevice> mmuedev = node->GetDevice(0)->GetObject <MmWaveUeNetDevice> ();
-		Vector pos = node->GetObject<MobilityModel> ()->GetPosition ();
-      		legendFile << "node:" << node->GetId() << " IMSI: " << mmuedev->GetImsi() << " at " << pos.x << "," << pos.y << endl;
-
-	}
+        legendFile.open(LegendFileName.c_str(), std::ios_base::app);
+        legendFile << "node, IMSI, CellID, RNTI, posx, posy" << endl;
+	legendFile.close();
 
 	serverApps.Stop (Seconds (simTime));
+
 	Simulator::Schedule (Seconds(0), &timeNow);		
+	for(int i = 0; i < (simTime/.2); i++) {
+		Simulator::Schedule (Seconds(0.2*i), &rntiLog, ueNodes);		
+	}
 
 	ptr_mmWave->EnableTraces ();
 	
-	Simulator::Stop (Seconds (simTime));
-//should generate a cool map 	
+	Simulator::Stop (Seconds (simTime));	
+
 	Simulator::Run ();
+
 	flowMonitor->SerializeToXmlFile(packetFlowFile, true, true);
 	Simulator::Destroy ();	
 	
